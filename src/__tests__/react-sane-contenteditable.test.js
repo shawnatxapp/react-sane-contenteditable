@@ -118,6 +118,11 @@ describe('Handles props', () => {
     expect(instance.setFocus).toHaveBeenCalled();
   });
 
+  it('renders the props.content respecting maxLength={5} on mount', () => {
+    const wrapper = shallow(<ContentEditable content="foo bar" maxLength={5} />);
+    expect(wrapper.render().text()).toEqual('foo b');
+  });
+
   it('props.caretPosition sets selection on mount', () => {
     mount(<ContentEditable caretPosition="start" />);
     expect(global.window.getSelection).toHaveBeenCalled();
@@ -155,14 +160,6 @@ describe('Handles props', () => {
     wrapper.update();
 
     expect(instance.shouldComponentUpdate).toHaveReturnedWith(true);
-  });
-
-  xdescribe('Failing tests to fix in component', () => {
-    it('renders the props.content respecting maxLength={5}', () => {
-      const content = 'foo bar';
-      const wrapper = shallow(<ContentEditable content={content} maxLength={5} />);
-      expect(wrapper.render().text()).toEqual('foo ba');
-    });
   });
 });
 

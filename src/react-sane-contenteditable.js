@@ -50,7 +50,7 @@ class ContentEditable extends Component {
     super(props);
 
     this.state = {
-      value: props.content,
+      value: this.sanitiseValue(props.content),
     };
   }
 
