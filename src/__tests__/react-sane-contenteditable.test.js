@@ -189,7 +189,7 @@ describe('Sanitisation', () => {
   });
 
   it('trims leading & trailing whitespace of each line', () => {
-    const content = " foo \n bar ";
+    const content = ' foo \n bar ';
     const wrapper = mount(<ContentEditable content={content} multiLine />);
 
     expect(wrapper.state('value')).toEqual('foo\nbar');
