@@ -16,7 +16,7 @@ class App extends Component {
   };
 
   handleKeyDown = (ev, value) => {
-    this.setState({ title: value });
+    // this.setState({ title: value });
   };
 
   render() {

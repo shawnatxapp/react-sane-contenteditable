@@ -29,7 +29,7 @@ export default {
       }
     }),
     replace({
-      "process.env.NODE_ENV": JSON.stringify("production")
+      "process.env.NODE_ENV": JSON.stringify("development")
     }),
     jsx({ factory: "React.createElement" }),
     serve("example")

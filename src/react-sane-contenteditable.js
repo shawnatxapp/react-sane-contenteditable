@@ -59,29 +59,32 @@ class ContentEditable extends Component {
     this.setCaret();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.content !== this.sanitiseValue(this.state.value)) {
-      this.setState({ value: nextProps.content });
-    }
-  }
-
-  shouldComponentUpdate(nextProps) {
-    const propKeys = Object.keys(nextProps).filter(key => key !== 'content');
-    return !isEqual(pick(nextProps, propKeys), pick(this.props, propKeys));
-  }
+  // shouldComponentUpdate(nextProps) {
+  //   const propKeys = Object.keys(nextProps);
+  //   return !isEqual(pick(nextProps, propKeys), pick(this.props, propKeys));
+  // }
 
   componentDidUpdate() {
+    this.setValue();
     this.setFocus();
     this.setCaret();
   }
 
-  setFocus = () => {
+  setValue() {
+    const { content } = this.props;
+
+    if (content !== this.sanitiseValue(this.state.value)) {
+      this.setState({ value: content });
+    }
+  }
+
+  setFocus() {
     if (this.props.focus && this._element) {
       this._element.focus();
     }
   };
 
-  setCaret = () => {
+  setCaret() {
     const { caretPosition } = this.props;
 
     if (caretPosition && this._element) {
@@ -97,24 +100,18 @@ class ContentEditable extends Component {
     }
   };
 
-  sanitiseValue(val) {
+  sanitiseValue(value) {
     const { maxLength, multiLine, sanitise } = this.props;
 
     if (!sanitise) {
-      return val;
+      return value;
     }
 
-    // replace encoded spaces
-    let value = val.replace(/&nbsp;/, ' ').replace(/[\u00a0\u2000-\u200b\u2028-\u2029\u202e-\u202f\u3000]/g, ' ');
-
-    if (multiLine) {
-      // replace any 2+ character whitespace (other than new lines) with a single space
-      value = value.replace(/[\t\v\f\r ]+/g, ' ');
-    } else {
-      value = value.replace(/\s+/g, ' ');
-    }
+    const doubleWhitespace = multiLine ? /[\t\v\f\r ]+/g : /\s+/g;
 
     return value
+      .replace(/&nbsp;|[\u00a0\u2000-\u200b\u2028-\u2029\u202e-\u202f\u3000]/g, ' ')
+      .replace(doubleWhitespace, ' ')
       .split('\n')
       .map(line => line.trim())
       .join('\n')
@@ -124,14 +121,11 @@ class ContentEditable extends Component {
   }
 
   _onChange = ev => {
-    const { sanitise } = this.props;
-    const rawValue = this._element.innerText;
-    const value = sanitise ? this.sanitiseValue(rawValue) : rawValue;
+    const value = this.sanitiseValue(ev.target.innerText);
 
     if (this.state.value !== value) {
-      this.setState({ value: rawValue }, () => {
-        this.props.onChange(ev, value);
-      });
+      console.log('_onChange', value, this.state.value);
+      this.setState({ value: value }, () => this.props.onChange(ev, value));
     }
   };
 
@@ -146,22 +140,17 @@ class ContentEditable extends Component {
   };
 
   _onBlur = ev => {
-    const { sanitise } = this.props;
-    const rawValue = this._element.innerText;
-    const value = sanitise ? this.sanitiseValue(rawValue) : rawValue;
-
-    // We finally set the state to the sanitised version (rather than the `rawValue`) because we're blurring the field.
-    this.setState({ value }, () => {
-      this.props.onChange(ev, value);
-      this.forceUpdate();
+    this.setState({
+      value: this.sanitiseValue(ev.target.innerText),
+    }, () => {
+      this.props.onChange(ev, this.state.value);
+      this.props.onBlur(ev);
     });
-
-    this.props.onBlur(ev);
   };
 
   _onKeyDown = ev => {
     const { maxLength, multiLine } = this.props;
-    const value = this._element.innerText;
+    const value = ev.target.innerText;
 
     // return key
     if (!multiLine && ev.keyCode === 13) {
@@ -184,11 +173,11 @@ class ContentEditable extends Component {
     // Access to Synthetic event: https://github.com/ashleyw/react-sane-contenteditable/issues/14
     // Current value onKeyDown: https://github.com/ashleyw/react-sane-contenteditable/pull/6
     // this._onKeyDown can't be moved in it's entirety to onKeyUp as we lose the opportunity to preventDefault
-    this.props.onKeyDown(ev, this._element.innerText);
+    this.props.onKeyDown(ev, ev.target.innerText);
   };
 
   render() {
-    const { tagName: Element, content, editable, styled, ...props } = this.props;
+    const { tagName: Element, editable, styled, ...props } = this.props;
 
     return (
       <Element
@@ -208,7 +197,6 @@ class ContentEditable extends Component {
             })}
         style={{ whiteSpace: 'pre-wrap', ...props.style }}
         contentEditable={editable}
-        key={Date()}
         dangerouslySetInnerHTML={{ __html: this.state.value }}
         onBlur={this._onBlur}
         onInput={this._onChange}
