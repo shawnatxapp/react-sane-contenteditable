@@ -124,8 +124,10 @@ class ContentEditable extends Component {
     const value = this.sanitiseValue(ev.target.innerText);
 
     if (this.state.value !== value) {
-      console.log('_onChange', value, this.state.value);
-      this.setState({ value: value }, () => this.props.onChange(ev, value));
+      this.setState({ value }, () => {
+        this.props.onChange(ev, this.state.value);
+        console.log('_onChange', this.state.value, value);
+      });
     }
   };
 

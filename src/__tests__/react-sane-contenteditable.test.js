@@ -53,6 +53,10 @@ describe('Default behaviour', () => {
 
     wrapper.find('div').simulate('input', { target: { innerText: nextInput } });
 
+    wrapper.instance().forceUpdate();
+
+    console.log('State->value', wrapper.state());
+
     expect(mockHandler).toHaveBeenCalledWith(expect.any(Object), nextInput);
     // expect(wrapper.update().state('value')).toEqual(nextInput);
   });
