@@ -5,11 +5,20 @@ import ContentEditable from '../src/react-sane-contenteditable';
 class App extends Component {
   state = {
     title: 'Title here',
+    isFocused: false
+  };
+
+  handleBlur = (ev) => {
+    this.setState({ isFocused: false });
   };
 
   handleChange = (ev, value) => {
     this.setState({ title: value });
   };
+
+  handleFocus = (ev) => {
+    this.setState({ isFocused: true });
+  }
 
   handleKeyDown = (ev, value) => {
     this.setState({ title: value });
@@ -19,16 +28,16 @@ class App extends Component {
     return (
       <div className="App">
         <ContentEditable
-          focus
-          tagName="h1"
+          focus={this.state.isFocused}
+          tagName="div"
           className="my-class"
           content={this.state.title}
           editable={true}
           maxLength={140}
-          multiLine={true}
+          onBlur={this.handleBlur}
           onChange={this.handleChange}
+          onFocus={this.handleFocus}
           onKeyDown={this.handleKeyDown}
-          caretPosition="end"
         />
 
         <b>Value:</b>
@@ -40,6 +49,9 @@ class App extends Component {
         >
           {this.state.title}
         </pre>
+
+        <b>Focused:</b>
+        <pre>{this.state.isFocused.toString()}</pre>
       </div>
     );
   }

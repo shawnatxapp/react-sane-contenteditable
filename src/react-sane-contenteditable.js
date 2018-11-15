@@ -22,6 +22,7 @@ const propTypes = {
   tagName: PropTypes.oneOfType([PropTypes.string, PropTypes.func]), // The element to make contenteditable. Takes an element string ('div', 'span', 'h1') or a styled component
   innerRef: PropTypes.func,
   onBlur: PropTypes.func,
+  onFocus: PropTypes.func,
   onKeyDown: PropTypes.func,
   onPaste: PropTypes.func,
   onChange: PropTypes.func,
@@ -39,6 +40,7 @@ const defaultProps = {
   tagName: 'div',
   innerRef: () => {},
   onBlur: () => {},
+  onFocus: () => {},
   onKeyDown: () => {},
   onPaste: () => {},
   onChange: () => {},
@@ -159,6 +161,10 @@ class ContentEditable extends Component {
     this.props.onBlur(ev);
   };
 
+  _onFocus = ev => {
+    this.props.onFocus(ev);
+  }
+
   _onKeyDown = ev => {
     const { maxLength, multiLine } = this.props;
     const value = this._element.innerText;
@@ -210,6 +216,7 @@ class ContentEditable extends Component {
         contentEditable={editable}
         key={Date()}
         dangerouslySetInnerHTML={{ __html: this.state.value }}
+        onFocus={this._onFocus}
         onBlur={this._onBlur}
         onInput={this._onChange}
         onKeyDown={this._onKeyDown}
